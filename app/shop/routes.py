@@ -129,3 +129,22 @@ def order_detail(order_id):
         flash('无权限查看此订单')
         return redirect(url_for('shop.orders'))
     return render_template('shop/order_detail.html', order=order)
+
+@bp.route('/order/<int:order_id>/pay', methods=['POST'])
+@login_required
+def pay_order(order_id):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.id:
+        flash('无权限操作此订单')
+        return redirect(url_for('shop.orders'))
+    
+    if order.status != 'pending':
+        flash('订单状态不正确')
+        return redirect(url_for('shop.order_detail', order_id=order_id))
+    
+    # 这里可以添加实际的支付处理逻辑
+    order.status = 'completed'
+    db.session.commit()
+    
+    flash('支付成功')
+    return redirect(url_for('shop.order_detail', order_id=order_id))
