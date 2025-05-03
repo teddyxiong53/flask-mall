@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - 京东商城</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-red-600 text-white">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="{{ url_for('main.index') }}" class="text-2xl font-bold">京东商城</a>
+                <div class="flex items-center space-x-4">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('shop.cart') }}" class="hover:text-gray-200">
+                            <span>购物车</span>
+                        </a>
+                        <a href="{{ url_for('shop.orders') }}" class="hover:text-gray-200">
+                            <span>我的订单</span>
+                        </a>
+                        <span>{{ current_user.username }}</span>
+                        <a href="{{ url_for('auth.logout') }}" class="hover:text-gray-200">退出</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="hover:text-gray-200">登录</a>
+                        <a href="{{ url_for('auth.register') }}" class="hover:text-gray-200">注册</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 京东商城. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

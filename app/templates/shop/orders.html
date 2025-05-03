@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}我的订单{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-8">我的订单</h1>
+        
+        {% if orders.items %}
+        <div class="space-y-6">
+            {% for order in orders.items %}
+            <div class="border border-gray-200 rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <span class="text-gray-600">订单号: {{ order.id }}</span>
+                        <span class="ml-4 text-gray-600">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm
+                        {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif order.status == 'completed' %}bg-green-100 text-green-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </div>
+                
+                <div class="space-y-4">
+                    {% for item in order.items %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-16 h-16 object-cover rounded-md">
+                            <div>
+                                <h3 class="text-gray-900">{{ item.product.name }}</h3>
+                                <p class="text-sm text-gray-600">数量: {{ item.quantity }} × ¥{{ "%.2f"|format(item.price) }}</p>
+                            </div>
+                        </div>
+                        <span class="text-red-600 font-semibold">¥{{ "%.2f"|format(item.price * item.quantity) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                    <a href="{{ url_for('shop.order_detail', order_id=order.id) }}" class="text-red-600 hover:text-red-700">
+                        查看详情
+                    </a>
+                    <div class="text-lg">
+                        总计: <span class="text-red-600 font-bold">¥{{ "%.2f"|format(order.total_amount) }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if orders.pages > 1 %}
+        <div class="flex justify-center mt-8">
+            <nav class="inline-flex rounded-md shadow">
+                {% if orders.has_prev %}
+                <a href="{{ url_for('shop.orders', page=orders.prev_num) }}" 
+                   class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    上一页
+                </a>
+                {% endif %}
+                
+                {% for page in range(1, orders.pages + 1) %}
+                <a href="{{ url_for('shop.orders', page=page) }}"
+                   class="px-3 py-2 border border-gray-300 bg-white text-sm font-medium 
+                          {% if page == orders.page %}text-red-600 border-red-600{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                    {{ page }}
+                </a>
+                {% endfor %}
+
+                {% if orders.has_next %}
+                <a href="{{ url_for('shop.orders', page=orders.next_num) }}"
+                   class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    下一页
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-600 mb-4">暂无订单</p>
+            <a href="{{ url_for('main.index') }}" class="text-red-600 hover:text-red-700">
+                去购物 →
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

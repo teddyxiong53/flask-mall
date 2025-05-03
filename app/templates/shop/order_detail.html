@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}订单详情{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">订单详情</h1>
+            <span class="px-3 py-1 rounded-full text-sm
+                {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                {% elif order.status == 'completed' %}bg-green-100 text-green-800
+                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ order.status }}
+            </span>
+        </div>
+
+        <!-- 订单信息 -->
+        <div class="mb-8">
+            <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                <div>
+                    <span class="font-medium">订单号：</span>
+                    <span>{{ order.id }}</span>
+                </div>
+                <div>
+                    <span class="font-medium">下单时间：</span>
+                    <span>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 收货信息 -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">收货信息</h2>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-gray-700">收货人：</span>
+                        <span class="text-gray-600">{{ order.shipping_address.recipient_name }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">联系电话：</span>
+                        <span class="text-gray-600">{{ order.shipping_address.phone }}</span>
+                    </div>
+                    <div class="md:col-span-2">
+                        <span class="font-medium text-gray-700">收货地址：</span>
+                        <span class="text-gray-600">{{ order.shipping_address.address }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品列表 -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">商品信息</h2>
+            <div class="space-y-4">
+                {% for item in order.items %}
+                <div class="flex items-center justify-between border-b border-gray-200 pb-4 last:border-0 last:pb-0">
+                    <div class="flex items-center space-x-4">
+                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-20 h-20 object-cover rounded-md">
+                        <div>
+                            <h3 class="text-gray-900 font-medium">{{ item.product.name }}</h3>
+                            <p class="text-sm text-gray-600 mt-1">单价：¥{{ "%.2f"|format(item.price) }}</p>
+                            <p class="text-sm text-gray-600">数量：{{ item.quantity }}</p>
+                        </div>
+                    </div>
+                    <span class="text-red-600 font-semibold">¥{{ "%.2f"|format(item.price * item.quantity) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 支付信息 -->
+        <div class="border-t border-gray-200 pt-6">
+            <div class="flex justify-end space-x-4 text-sm">
+                <div class="text-gray-600">
+                    <span>商品总价：</span>
+                    <span>¥{{ "%.2f"|format(order.total_amount) }}</span>
+                </div>
+                <div class="text-gray-600">
+                    <span>运费：</span>
+                    <span>¥0.00</span>
+                </div>
+                <div class="text-lg font-bold text-red-600">
+                    <span>实付款：</span>
+                    <span>¥{{ "%.2f"|format(order.total_amount) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="mt-8 flex justify-end space-x-4">
+            <a href="{{ url_for('shop.orders') }}" class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                返回订单列表
+            </a>
+            {% if order.status == 'pending' %}
+            <button class="px-6 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">
+                立即支付
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}购物车{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-8">我的购物车</h1>
+        
+        {% if cart_items %}
+        <div class="space-y-6">
+            {% for item in cart_items %}
+            <div class="flex items-center justify-between border-b border-gray-200 pb-6">
+                <div class="flex items-center space-x-4">
+                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-24 h-24 object-cover rounded-md">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            <a href="{{ url_for('main.product', id=item.product.id) }}" class="hover:text-red-600">
+                                {{ item.product.name }}
+                            </a>
+                        </h3>
+                        <p class="text-gray-600">单价: ¥{{ "%.2f"|format(item.product.price) }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <form action="{{ url_for('shop.update_cart', item_id=item.id) }}" method="post" class="flex items-center space-x-2">
+                        <select name="quantity" onchange="this.form.submit()" class="border border-gray-300 rounded-md px-2 py-1">
+                            {% for i in range(1, item.product.stock + 1) %}
+                                <option value="{{ i }}" {% if i == item.quantity %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    
+                    <span class="text-red-600 font-semibold">¥{{ "%.2f"|format(item.product.price * item.quantity) }}</span>
+                    
+                    <form action="{{ url_for('shop.remove_from_cart', item_id=item.id) }}" method="post">
+                        <button type="submit" class="text-gray-500 hover:text-red-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="flex justify-between items-center pt-6">
+                <div class="text-lg">
+                    总计: <span class="text-red-600 font-bold">¥{{ "%.2f"|format(total) }}</span>
+                </div>
+                
+                <form action="{{ url_for('shop.checkout') }}" method="post">
+                    <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 transition duration-200">
+                        结算
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-600 mb-4">购物车是空的</p>
+            <a href="{{ url_for('main.index') }}" class="text-red-600 hover:text-red-700">
+                去购物 →
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
